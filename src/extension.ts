@@ -196,7 +196,7 @@ export class CscopeCode implements vscode.Disposable {
 	async build(): Promise<void> {
 		this.statusbar.show('cscope-code: building...');
 		try {
-			await this.cscope.build(this.env.getCurrentDirectory());
+			await this.cscope.build();
 		} catch (err) {
 			this.log.err('cannot build the database: ', err);
 		}
@@ -213,7 +213,7 @@ export class CscopeCode implements vscode.Disposable {
 		this.statusbar.show('cscope-code: querying...');
 		let results: IItem[] | undefined = undefined;
 		try {
-			results = await this.cscope.query(type, word, cwd);
+			results = await this.cscope.query(type, word);
 		} catch (err) {
 			this.log.err('cannot query: ', err);
 		}

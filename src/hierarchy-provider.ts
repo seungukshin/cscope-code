@@ -91,7 +91,7 @@ export class HierarchyProvider implements vscode.CallHierarchyProvider {
 		this.statusbar.show('cscope-code: querying...');
 		let results: IItem[] | undefined = undefined;
 		try {
-			results = await this.cscope.query('callee', item.name, this.cwd);
+			results = await this.cscope.query('callee', item.name);
 		} catch (err) {
 			this.log.err('cannot query: ', err);
 		}
@@ -109,7 +109,7 @@ export class HierarchyProvider implements vscode.CallHierarchyProvider {
 		this.statusbar.show('cscope-code: querying...');
 		let results: IItem[] | undefined = undefined;
 		try {
-			results = await this.cscope.query('caller', item.name, this.cwd);
+			results = await this.cscope.query('caller', item.name);
 		} catch (err) {
 			this.log.err('cannot query: ', err);
 		}

@@ -16,6 +16,12 @@ export default interface IEnv {
 	getCurrentDirectory(): string;
 
 	/**
+	 * Get all workspace directories.
+	 * @returns {string[]} - All workspace directories.
+	 */
+	getAllDirectories(): string[];
+
+	/**
 	 * Get a current word under the cursor.
 	 * @returns {string} - A current word.
 	 */

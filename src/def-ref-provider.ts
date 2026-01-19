@@ -67,7 +67,7 @@ export class DefRefProvider implements vscode.DefinitionProvider, vscode.Referen
 		const word = document.getText(range);
 		let results: IItem[] | undefined = undefined;
 		try {
-			results = await this.cscope.query('definition', word, this.cwd);
+			results = await this.cscope.query('definition', word);
 		} catch (err) {
 			this.log.err('cannot query: ', err);
 		}
@@ -85,7 +85,7 @@ export class DefRefProvider implements vscode.DefinitionProvider, vscode.Referen
 		const word = document.getText(range);
 		let results: IItem[] | undefined = undefined;
 		try {
-			results = await this.cscope.query('symbol', word, this.cwd);
+			results = await this.cscope.query('symbol', word);
 		} catch (err) {
 			this.log.err('cannot query: ', err);
 		}

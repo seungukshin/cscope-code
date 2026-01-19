@@ -5,6 +5,7 @@ import ILog from '../interface/ilog';
 import IEnv from '../interface/ienv';
 import IItem from '../interface/iitem';
 import Item from './item';
+import path = require('path');
 
 const QueryType: { [key: string]: string } = Object.freeze({
 	'symbol': '-0',
@@ -58,10 +59,30 @@ export default class Cscope {
 	}
 
 	/**
+	 * @returns {Promise<string>}
+	 */
+	async build(): Promise<string> {
+		const directories = this.env.getAllDirectories();
+		
+		this.log.info(`Building cscope databases for ${directories.length} workspace folders...`);
+		const results: string[] = [];
+		for (const dir of directories) {
+			try {
+				const result = await this.buildSingle(dir);
+				results.push(result);
+			} catch (err) {
+				this.log.err(`Failed to build database for ${dir}:`, err);
+				results.push(`Error: ${err}`);
+			}
+		}
+		return results.join('\n');
+	}
+
+	/**
 	 * @param {string} cwd - current working directory
 	 * @returns {Promise<string>}
 	 */
-	async build(cwd: string): Promise<string> {
+	private async buildSingle(cwd: string): Promise<string> {
 		let index = 0;
 		const len = this.buildQueue.length;
 		for (index = 0; index < len; index++) {
@@ -120,15 +141,37 @@ export default class Cscope {
 	/**
 	 * @param {string} type
 	 * @param {string} word
+	 * @returns {Promise<IItem[]>}
+	 */
+	async query(type: string, word: string): Promise<IItem[]> {
+		const directories = this.env.getAllDirectories();
+		
+		this.log.info(`Querying across ${directories.length} workspace folders...`);
+		const allResults: IItem[] = [];
+		for (const dir of directories) {
+			try {
+				const results = await this.querySingle(type, word, dir);
+				allResults.push(...results);
+			} catch (err) {
+				this.log.err(`Failed to query in ${dir}:`, err);
+			}
+		}
+		return allResults;
+	}
+
+	/**
+	 * @param {string} type
+	 * @param {string} word
 	 * @param {string} cwd - current working directory
 	 * @returns {Promise<IItem[]>}
 	 */
-	async query(type: string, word: string, cwd: string): Promise<IItem[]> {
+	private async querySingle(type: string, word: string, cwd: string): Promise<IItem[]> {
 		return new Promise((resolve, reject) => {
 			const cmd = this.config.get<string>('cscope');
 			const db = this.config.get<string>('database');
 			const queryArgs = this.config.get<string>('queryArgs');
 			const args = [queryArgs, '-f', db, QueryType[type], word];
+			const parent = path.relative(this.env.getCurrentDirectory(), cwd);
 			this.queryCmd = [cmd, ...args].join(' ');
 			this.log.info(cmd, args, cwd);
 
@@ -139,7 +182,7 @@ export default class Cscope {
 			const rline = rl.createInterface({ input: proc.stdout, terminal: false });
 			rline.on('line', (line) => {
 				try {
-					results.push(new Item(line));
+					results.push(new Item(line, parent));
 				} catch (err) {
 					this.log.err(err);
 					this.log.err('cannot parse:', line);

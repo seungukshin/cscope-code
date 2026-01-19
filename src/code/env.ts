@@ -61,6 +61,18 @@ export default class Env implements IEnv {
 	}
 
 	/**
+	 * Get all workspace directories.
+	 * @returns {string[]} - All workspace directories.
+	 */
+	getAllDirectories(): string[] {
+		const workspaces = vscode.workspace.workspaceFolders;
+		if (workspaces && workspaces.length > 0) {
+			return workspaces.map((folder: vscode.WorkspaceFolder) => folder.uri.fsPath);
+		}
+		return [this.getCurrentDirectory()];
+	}
+
+	/**
 	 * Get a current word under the cursor.
 	 * @returns {string} - A current word.
 	 */

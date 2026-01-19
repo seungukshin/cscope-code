@@ -1,3 +1,4 @@
+import path = require("path");
 import IItem from "../interface/iitem";
 
 export default class Item implements IItem {
@@ -13,12 +14,13 @@ export default class Item implements IItem {
 	private line: number;
 	private text: string;
 	private raw: string;
+	private parent: string;
 
 	/**
 	 * @constructor
 	 * @param {string} line
 	 */
-	constructor(line: string) {
+	constructor(line: string, parent: string) {
 		const tokens = line.match(/([^ ]*) +([^ ]*) +([^ ]*) (.*)/);
 		if (tokens == null || tokens.length < 5) {
 			throw new Error('wrong format');
@@ -28,6 +30,7 @@ export default class Item implements IItem {
 		this.line = parseInt(tokens[3]) - 1;
 		this.text = tokens[4];
 		this.raw = line;
+		this.parent = parent;
 		return this;
 	}
 
@@ -36,7 +39,7 @@ export default class Item implements IItem {
 	 * @returns {string}
 	 */
 	getFile(): string {
-		return this.file;
+		return path.join(this.parent, this.file);
 	}
 
 	/**
